@@ -42,7 +42,7 @@ The system is divided into four highly specialized subsystems:
 ### Setup Steps
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/yourusername/static-fire-daq.git](https://github.com/yourusername/static-fire-daq.git)
+   git clone https://github.com/mtepenner/static-fire-daq.git
    cd static-fire-daq
    ```
 2. Flash the firmware to your microcontroller using the provided Makefile commands:
