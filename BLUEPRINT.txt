@@ -1,0 +1,60 @@
+static-fire-daq/
+│
+├── .github/                             # CI/CD for firmware and software
+│   └── workflows/
+│       ├── build-firmware.yml           # Compiles C++ for the microcontroller (e.g., Teensy 4.1)
+│       └── build-telemetry.yml          # Builds the Go binaries and React assets
+│
+├── firmware/                            # C/C++: The Deterministic Control & Safety Loop
+│   ├── src/
+│   │   ├── main.cpp                     # Bare-metal entry point (No standard OS to prevent thread blocking)
+│   │   ├── sensors/
+│   │   │   ├── adc_reader.cpp           # Direct Register Access for high-speed Analog-to-Digital Conversion
+│   │   │   └── kalman_filter.cpp        # Smooths noisy pressure/thrust data without adding latency
+│   │   ├── safety/
+│   │   │   └── redline_abort.cpp        # THE CRITICAL PATH: The <1ms loop checking pressure vs. limits
+│   │   ├── actuators/
+│   │   │   └── solenoids.cpp            # Triggers the MOSFETs to snap the Main Oxidizer Valve (MOV) closed
+│   │   └── comms/
+│   │       └── serial_stream.cpp        # Packs telemetry into raw byte structs for the Go server
+│   └── platformio.ini                   # Build config prioritizing maximum clock speed
+│
+├── telemetry_gateway/                   # Go: High-Throughput Ingestion & Broadcast
+│   ├── cmd/
+│   │   └── gateway/
+│   │       └── main.go                  # Opens the serial port and spins up the WebSocket server
+│   ├── internal/
+│   │   ├── serial/
+│   │   │   └── reader.go                # Reads the raw byte stream at massive baud rates (e.g., 2,000,000 baud)
+│   │   ├── decoder/
+│   │   │   └── cobs.go                  # Uses Consistent Overhead Byte Stuffing to perfectly frame data packets
+│   │   └── websocket/
+│   │       ├── hub.go                   # Manages all connected React clients
+│   │       └── client.go                # Pushes the decoded JSON to the browser
+│   ├── go.mod
+│   └── Dockerfile
+│
+├── dashboard/                           # React + TypeScript: The Mission Control Panel
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── HighSpeedChart.tsx       # WebGL-accelerated chart (like uPlot) for 1000Hz rendering
+│   │   │   ├── ValveStatusHUD.tsx       # Visual indicators for Ignition, Purge, and Main Valves
+│   │   │   └── AbortPanel.tsx           # Giant, unmistakable interface for the Manual Abort override
+│   │   ├── hooks/
+│   │   │   └── useDaqStream.ts          # Manages the firehose of WebSocket data
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   ├── package.json
+│   └── Dockerfile
+│
+├── data_logger/                         # Go or Python: Cold Storage
+│   ├── cmd/
+│   │   └── logger/
+│   │       └── main.go                  # Subscribes to the Go Gateway and writes data to disk
+│   └── internal/
+│       └── writer/
+│           └── csv_writer.go            # Writes every single data point to a CSV for post-test analysis
+│
+├── docker-compose.yml                   # Spins up the Go Gateway, React dashboard, and Logger locally
+├── Makefile                             # Commands for flashing firmware and starting the suite
+└── README.md
