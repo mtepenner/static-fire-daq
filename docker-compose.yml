@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  gateway:
+    build: ./telemetry_gateway
+    ports:
+      - "8080:8080"
+    privileged: true
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    restart: unless-stopped
+
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  data_logger:
+    build: ./data_logger
+    environment:
+      - GATEWAY_URL=ws://gateway:8080/ws
+    volumes:
+      - ./data:/data
+    depends_on:
+      - gateway
+    restart: unless-stopped

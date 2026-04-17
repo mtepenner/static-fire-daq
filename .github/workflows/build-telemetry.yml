@@ -1,0 +1,55 @@
+name: Build Telemetry Services
+
+on:
+  push:
+    paths:
+      - 'telemetry_gateway/**'
+      - 'data_logger/**'
+      - 'dashboard/**'
+  pull_request:
+    paths:
+      - 'telemetry_gateway/**'
+      - 'data_logger/**'
+      - 'dashboard/**'
+
+jobs:
+  build-gateway:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Build gateway
+        run: cd telemetry_gateway && go mod tidy && go build ./...
+
+  build-data-logger:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Build data logger
+        run: cd data_logger && go mod tidy && go build ./...
+
+  build-dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: cd dashboard && npm ci
+      - name: Build dashboard
+        run: cd dashboard && npm run build

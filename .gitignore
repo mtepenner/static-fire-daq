@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build output
+dist/
+build/
+
+# Go binaries
+*.exe
+*.test
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PlatformIO
+firmware/.pio/
+firmware/.pioenvs/
+
+# Data files
+data/*.csv
